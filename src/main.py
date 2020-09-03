@@ -1,6 +1,5 @@
-import discord
 from discord.ext import commands
-import config
+import lol, config
 
 client = commands.Bot(command_prefix=config.PREFIX, description="This is a Python Bot")
 
@@ -27,6 +26,10 @@ async def hello(ctx):
 @client.command()
 async def ping(ctx):
     await ctx.send('Pong!')
+
+@client.command()
+async def profile(ctx, summoner):
+    await ctx.send(lol.get_summoner(summoner))
 
 # Initialization with token
 client.run(config.TOKEN)
