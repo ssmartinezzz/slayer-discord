@@ -1,6 +1,9 @@
-bin
-include
-lib
-lib64
+.env
+.idea/
+__pycache__/
+bin/
+lib/
+lib64/
 pyvenv.cfg
-share
+share/
+lib64
