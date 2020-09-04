@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode,virtualenv,dotenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm,visualstudiocode,virtualenv,dotenv
 
+### Files ###
+boot.sh
+
 ### dotenv ###
 .env
 

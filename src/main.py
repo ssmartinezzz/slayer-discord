@@ -1,35 +1,87 @@
 from discord.ext import commands
-import lol, config
+from discord.ext.commands import CommandNotFound
+import discord
+import datetime
+import time
 
-client = commands.Bot(command_prefix=config.PREFIX, description="This is a Python Bot")
+from objects.player import Player
 
-# Events
+# Import config file
+import config
+
+
+# Initialize the bot
+description = "This is a Python Bot"
+
+bot = commands.Bot(command_prefix=config.PREFIX, description=description)
+start_time = time.time()
+
 
 # Event for success connection
-@client.event
+@bot.event
 async def on_ready():
-    print(f'Logged in as {client.user.name}')
+    print("------")
+    print("Logged in as")
+    print(bot.user.name)
+    print(bot.user.id)
+    print("------")
 
-# Fix: No Funciona
-# Intento querer que descarte los mensajes de otros bots.
-# @client.event
-# async def on_message(message):
-#     if message.author.bot:
-#         return
 
-# Commands
-# Standard Command Syntaxis
-@client.command()
-async def hello(ctx):
-    await ctx.send("Hello!")
+# Handle errors
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandNotFound):
+        await ctx.send("Command not found!")
 
-@client.command()
+
+@bot.command(description="Pong!")
 async def ping(ctx):
-    await ctx.send('Pong!')
+    """Pong!"""
+    await ctx.send("Pong!")
 
-@client.command()
-async def profile(ctx, summoner):
-    await ctx.send(lol.get_summoner(summoner))
 
-# Initialization with token
-client.run(config.TOKEN)
+@bot.command()
+async def server(ctx):
+    """Get info for the server"""
+    embed = discord.Embed(description="Bienvenidos a la Grieta", timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
+    embed.set_author(name=f"{ctx.guild.name}", icon_url=f"{ctx.guild.icon_url}")
+    embed.add_field(name="Server created at:", value=f"{ctx.guild.created_at}", inline=True)
+    embed.add_field(name="Server Owner:", value=f"{ctx.guild.owner}", inline=True)
+    embed.add_field(name="Server Region:", value=f"{ctx.guild.region}", inline=True)
+    embed.add_field(name="Server ID:", value=f"{ctx.guild.id}", inline=True)
+    embed.set_footer(text=f"{ctx.author.name}", icon_url=f"{ctx.author.avatar_url}")
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def opgg(ctx, *args):
+    """Pull up op.gg for players"""
+    url = "http://las.op.gg/"
+
+    if len(args) == 1:
+        url += "summoner/userName=" + args[0]
+    elif len(args) > 1:
+        url += "summoner/userName=" + args[0]
+        for i in range(1, len(args)):
+            url += "+" + args[i]
+
+    await ctx.send(url)
+
+
+@bot.command()
+async def uptime(ctx):
+    """How long has Discord Bot been alive? """
+    await ctx.send(str(int(time.time() - start_time)) + ' segundos.')
+
+
+if __name__ == "__main__":
+    print("Loading dependencies...")
+    modules = ["summoners"]
+    for module in modules:
+        try:
+            bot.load_extension("modules." + module)
+        except Exception as e:
+            exc = "{}: {}".format(type(e).__name__, e)
+            print("Failed to load extension {}\n{}".format(module, exc))
+
+    bot.run(config.TOKEN)
